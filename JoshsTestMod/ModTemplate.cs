@@ -36,6 +36,7 @@ namespace ModTemplate
                 SDV = FindObjectOfType<SupernovaDestructionVolume>();
 
                 GlobalMessenger.AddListener("WakeUp", OnWakeUp);
+                TimeLoop.SetTimeLoopEnabled(false);
             };
         }
 
@@ -45,6 +46,7 @@ namespace ModTemplate
                 return;
 
             SDV._checkForPlayerDestruction = false; //Fingers crossed this works... nope
+            SDV.SetActivation(false); //Hopefully this isn't too laggy or something
         }
 
         private void OnWakeUp()

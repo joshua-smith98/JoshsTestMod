@@ -1,10 +1,14 @@
 ﻿using OWML.Common;
 using OWML.ModHelper;
+using UnityEngine;
 
 namespace ModTemplate
 {
     public class ModTemplate : ModBehaviour
     {
+        SupernovaDestructionVolume SDV;
+        OWScene currentScene;
+        
         private void Awake()
         {
             // You won't be able to access OWML's mod helper in Awake.
@@ -20,11 +24,25 @@ namespace ModTemplate
             // Example of accessing game code.
             LoadManager.OnCompleteSceneLoad += (scene, loadScene) =>
             {
-                if (loadScene != OWScene.SolarSystem) return;
-                var playerBody = FindObjectOfType<PlayerBody>();
-                ModHelper.Console.WriteLine($"Found player body, and it's called {playerBody.name}!",
-                    MessageType.Success);
+                currentScene = loadScene;
+                if (currentScene is not OWScene.SolarSystem)
+                {
+                    SDV = null;
+                    return;
+                }
+
+                SDV = FindObjectOfType<SupernovaDestructionVolume>();
+                TimeLoop._loopDuration = -1f; //No idea what this will do, I hope it will get rid of the timeloop
+                GlobalMessenger.FireEvent("TriggerSupernova"); //Muhuhuhahhahahaha
             };
+        }
+
+        private void FixedUpdate()
+        {
+            if (currentScene is not OWScene.SolarSystem || SDV is null)
+                return;
+
+            SDV._checkForPlayerDestruction = false; //Fingers crossed this works...
         }
     }
 }

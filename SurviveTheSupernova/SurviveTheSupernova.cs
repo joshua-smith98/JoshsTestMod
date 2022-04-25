@@ -9,6 +9,8 @@ namespace ModTemplate
     public class SurviveTheSupernova : ModBehaviour
     {
         bool isInitialised = false;
+        bool sunWillExplode = false;
+        float wakeUpTime;
         
         SupernovaDestructionVolume SDV;
         OWScene currentScene;
@@ -54,9 +56,22 @@ namespace ModTemplate
 
             SDV._checkForPlayerDestruction = false; //Fingers crossed this works... nope
             SDV.SetActivation(false); //Hopefully this isn't too laggy or something
+
+            // Explode sun 0.1 seconds after you wake up - should avoid the loading time interfering on later loops
+            if (sunWillExplode && Time.time - wakeUpTime >= 0.1f)
+            {
+                sunWillExplode = false;
+                OnEarlyExplode();
+            }
         }
 
         private void OnWakeUp()
+        {
+            wakeUpTime = Time.time;
+            sunWillExplode = true;
+        }
+
+        private void OnEarlyExplode()
         {
             //TimeLoop.SetTimeLoopEnabled(false); //Right...apparently this just gives you the You Are Dead screen after the ATP pulls you back. K.
             GlobalMessenger.FireEvent("TriggerSupernova");

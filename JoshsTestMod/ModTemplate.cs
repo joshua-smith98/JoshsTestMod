@@ -64,6 +64,11 @@ namespace ModTemplate
             var deathController = FindObjectOfType<DeathManager>();
             Destroy(deathController); //Trying to force the player to not be killed by the timeloop.
             //Yeah that's right, I just destroyed death. This can't end badly at all.
+            //NOOOFUUUU
+
+            var timeloopCoreController = FindObjectOfType<TimeLoopCoreController>();
+            Destroy(timeloopCoreController); //Yeah screw the ATP!!!
+            //Oh god it actually worked.
         }
     }
 }

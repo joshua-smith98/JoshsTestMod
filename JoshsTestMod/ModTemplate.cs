@@ -58,8 +58,12 @@ namespace ModTemplate
 
         private void OnWakeUp()
         {
-            TimeLoop.SetTimeLoopEnabled(false); //Right...apparently this just gives you the You Are Dead screen after the ATP pulls you back. K.
+            //TimeLoop.SetTimeLoopEnabled(false); //Right...apparently this just gives you the You Are Dead screen after the ATP pulls you back. K.
             GlobalMessenger.FireEvent("TriggerSupernova");
+
+            var deathController = FindObjectOfType<DeathManager>();
+            Destroy(deathController); //Trying to force the player to not be killed by the timeloop.
+            //Yeah that's right, I just destroyed death. This can't end badly at all.
         }
     }
 }

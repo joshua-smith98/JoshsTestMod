@@ -34,7 +34,6 @@ namespace ModTemplate
                 }
 
                 SDV = FindObjectOfType<SupernovaDestructionVolume>();
-                TimeLoop._loopDuration = -1f; //No idea what this will do, I hope it will get rid of the timeloop
 
                 GlobalMessenger.AddListener("WakeUp", OnWakeUp);
             };

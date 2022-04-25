@@ -51,7 +51,7 @@ namespace ModTemplate
 
         private void FixedUpdate()
         {
-            if (currentScene is not OWScene.SolarSystem || SDV is null)
+            if (currentScene is not OWScene.SolarSystem)
                 return;
 
             SDV._checkForPlayerDestruction = false; //Fingers crossed this works... nope

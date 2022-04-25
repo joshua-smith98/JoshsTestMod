@@ -1,5 +1,6 @@
 # Survive the Supernova
 
-Oh no! I overslept! Oh for sap-wine's sake the sun is already exploding...might as well go back to sleep.
+Oh no! I overslept! Oh for sap-wine's sake the sun is already exploding...
+Well uh, might as well roast a marhmellow while I wait.
 
-...wait shouldn't I be dead by now?
+...huh. Shouldn't I be dead by now?

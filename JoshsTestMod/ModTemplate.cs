@@ -42,7 +42,6 @@ namespace ModTemplate
                 {
                     GlobalMessenger.AddListener("WakeUp", OnWakeUp);
                 }
-                TimeLoop.SetTimeLoopEnabled(false);
 
                 isInitialised = true;
             };
@@ -59,6 +58,7 @@ namespace ModTemplate
 
         private void OnWakeUp()
         {
+            TimeLoop.SetTimeLoopEnabled(false); //Right...apparently this just gives you the You Are Dead screen after the ATP pulls you back. K.
             GlobalMessenger.FireEvent("TriggerSupernova");
         }
     }

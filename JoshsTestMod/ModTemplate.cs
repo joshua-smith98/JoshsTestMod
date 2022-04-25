@@ -8,6 +8,8 @@ namespace ModTemplate
 {
     public class ModTemplate : ModBehaviour
     {
+        bool isInitialised = false;
+        
         SupernovaDestructionVolume SDV;
         OWScene currentScene;
         
@@ -35,8 +37,14 @@ namespace ModTemplate
 
                 SDV = FindObjectOfType<SupernovaDestructionVolume>();
 
-                GlobalMessenger.AddListener("WakeUp", OnWakeUp);
+                //Got to do this because otherwise it seems to add an additional listener per restart
+                if (!isInitialised)
+                {
+                    GlobalMessenger.AddListener("WakeUp", OnWakeUp);
+                }
                 TimeLoop.SetTimeLoopEnabled(false);
+
+                isInitialised = true;
             };
         }
 

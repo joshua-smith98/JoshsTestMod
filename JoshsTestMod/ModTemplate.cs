@@ -1,4 +1,6 @@
-﻿using OWML.Common;
+﻿using System;
+using System.Collections.Generic;
+using OWML.Common;
 using OWML.ModHelper;
 using UnityEngine;
 
@@ -33,7 +35,8 @@ namespace ModTemplate
 
                 SDV = FindObjectOfType<SupernovaDestructionVolume>();
                 TimeLoop._loopDuration = -1f; //No idea what this will do, I hope it will get rid of the timeloop
-                GlobalMessenger.FireEvent("TriggerSupernova"); //Muhuhuhahhahahaha
+
+                GlobalMessenger.AddListener("WakeUp", OnWakeUp);
             };
         }
 
@@ -42,7 +45,12 @@ namespace ModTemplate
             if (currentScene is not OWScene.SolarSystem || SDV is null)
                 return;
 
-            SDV._checkForPlayerDestruction = false; //Fingers crossed this works...
+            SDV._checkForPlayerDestruction = false; //Fingers crossed this works... nope
+        }
+
+        private void OnWakeUp()
+        {
+            GlobalMessenger.FireEvent("TriggerSupernova");
         }
     }
 }

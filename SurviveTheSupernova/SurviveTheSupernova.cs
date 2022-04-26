@@ -8,10 +8,7 @@ namespace ModTemplate
 {
     public class SurviveTheSupernova : ModBehaviour
     {
-        bool isInitialised = false;
         bool sunShouldExplode = false;
-        bool endTimesShouldPlay = false;
-        bool rumbleShouldFadeOut = false;
         float wakeUpTime;
         
         SupernovaDestructionVolume SDV;
@@ -41,16 +38,19 @@ namespace ModTemplate
 
                 SDV = FindObjectOfType<SupernovaDestructionVolume>();
 
-                //Got to do this because otherwise it seems to add an additional listener per restart
-                if (!isInitialised)
-                {
-                    GlobalMessenger.AddListener("WakeUp", OnWakeUp);
-                }
-
-                isInitialised = true;
+                GlobalMessenger.AddListener("WakeUp", OnWakeUp);
 
                 ModHelper.Console.WriteLine($"{nameof(SurviveTheSupernova)} initialised.");
             };
+        }
+
+        private void Destroy()
+        {
+            if (currentScene is not OWScene.SolarSystem)
+                return;
+
+            //Get rid of listener on destroy so we don't double up
+            GlobalMessenger.RemoveListener("WakeUp", OnWakeUp);
         }
 
         private void FixedUpdate()

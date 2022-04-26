@@ -11,10 +11,12 @@ namespace ModTemplate
         bool isInitialised = false;
         bool sunShouldExplode = false;
         bool endTimesShouldPlay = false;
+        bool rumbleShouldFadeOut = false;
         float wakeUpTime;
         
         SupernovaDestructionVolume SDV;
         GlobalMusicController GMC;
+        SupernovaEffectController SEC;
         OWScene currentScene;
         
         private void Awake()
@@ -37,11 +39,13 @@ namespace ModTemplate
                 {
                     SDV = null;
                     GMC = null;
+                    SEC = null;
                     return;
                 }
 
                 SDV = FindObjectOfType<SupernovaDestructionVolume>();
                 GMC = FindObjectOfType<GlobalMusicController>();
+                SEC = FindObjectOfType<SupernovaEffectController>();
 
                 //Got to do this because otherwise it seems to add an additional listener per restart
                 if (!isInitialised)
@@ -70,7 +74,7 @@ namespace ModTemplate
 
             // Start playing finalEndTimes a little after the supernova, so we don't mess with the built in logic
             // I really need to learn how to inject methods, so I can actually change the game logic...
-            if (endTimesShouldPlay && Time.time - wakeUpTime >= 10f)
+            if (endTimesShouldPlay && Time.time - wakeUpTime >= 20f)
             {
                 //Literally copied from the assembly
                 endTimesShouldPlay = false;
@@ -79,6 +83,21 @@ namespace ModTemplate
                 GMC._finalEndTimesIntroSource.Stop();
                 GMC._finalEndTimesIntroSource.FadeIn(2f, false, false, 1f);
                 GMC._playingFinalEndTimes = true;
+
+                endTimesShouldPlay = false;
+            }
+
+            // Turn down the supernova blast volume
+            if (rumbleShouldFadeOut && Time.time - wakeUpTime >= 20f)
+            {
+                SEC._audioSource.FadeTo(0.1f, 30f);
+                rumbleShouldFadeOut = false;
+            }
+
+            //KEEP THE RUMBLE FADED OUT FFS
+            if (Time.time - wakeUpTime >= 50f)
+            {
+                SEC._audioSource.SetMaxVolume(0.1f);
             }
         }
 
@@ -87,6 +106,7 @@ namespace ModTemplate
             wakeUpTime = Time.time;
             sunShouldExplode = true;
             endTimesShouldPlay = true;
+            rumbleShouldFadeOut = true;
         }
 
         private void OnEarlyExplode()

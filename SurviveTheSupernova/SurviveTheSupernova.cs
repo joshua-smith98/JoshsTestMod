@@ -8,11 +8,21 @@ namespace ModTemplate
 {
     public class SurviveTheSupernova : ModBehaviour
     {
+        bool disableSupernovaRumble;
+        bool triggerSupernovaOnWake;
+        
         bool sunShouldExplode = false;
         float wakeUpTime;
         
         SupernovaDestructionVolume SDV;
+        SupernovaEffectController SEC;
         OWScene currentScene;
+
+        public override void Configure(IModConfig config)
+        {
+            disableSupernovaRumble = config.GetSettingsValue<bool>("Disable Supernova Rumble");
+            triggerSupernovaOnWake = config.GetSettingsValue<bool>("Trigger Supernova on Wake");
+        }
         
         private void Awake()
         {
@@ -33,10 +43,12 @@ namespace ModTemplate
                 if (currentScene is not OWScene.SolarSystem)
                 {
                     SDV = null;
+                    SEC = null;
                     return;
                 }
 
                 SDV = FindObjectOfType<SupernovaDestructionVolume>();
+                SEC = FindObjectOfType<SupernovaEffectController>();
 
                 GlobalMessenger.AddListener("WakeUp", OnWakeUp);
 
@@ -66,6 +78,10 @@ namespace ModTemplate
                 sunShouldExplode = false;
                 OnEarlyExplode();
             }
+
+            //Mute Supernova Rumble
+            if (disableSupernovaRumble & SEC._audioSource.isPlaying)
+                SEC._audioSource.Stop();
         }
 
         private void OnWakeUp()
@@ -76,9 +92,12 @@ namespace ModTemplate
 
         private void OnEarlyExplode()
         {
-            //TimeLoop.SetTimeLoopEnabled(false); //Right...apparently this just gives you the You Are Dead screen after the ATP pulls you back. K.
-            ModHelper.Console.WriteLine("Blowing up the sun, and disabling the ATP so the loop never ends.");
-            GlobalMessenger.FireEvent("TriggerSupernova");
+            if (triggerSupernovaOnWake)
+            {
+                //TimeLoop.SetTimeLoopEnabled(false); //Right...apparently this just gives you the You Are Dead screen after the ATP pulls you back. K.
+                ModHelper.Console.WriteLine("Blowing up the sun, and disabling the ATP so the loop never ends.");
+                GlobalMessenger.FireEvent("TriggerSupernova");
+            }
 
             var timeloopCoreController = FindObjectOfType<TimeLoopCoreController>();
             Destroy(timeloopCoreController); //Yeah screw the ATP!!!

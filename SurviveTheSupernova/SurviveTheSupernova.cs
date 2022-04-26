@@ -71,34 +71,6 @@ namespace ModTemplate
                 sunShouldExplode = false;
                 OnEarlyExplode();
             }
-
-            // Start playing finalEndTimes a little after the supernova, so we don't mess with the built in logic
-            // I really need to learn how to inject methods, so I can actually change the game logic...
-            if (endTimesShouldPlay && Time.time - wakeUpTime >= 20f)
-            {
-                //Literally copied from the assembly
-                endTimesShouldPlay = false;
-                Locator.GetAudioMixer().MixEndTimes(5f);
-                GMC._finalEndTimesLoopSource.GetAudioSource().PlayScheduled(AudioSettings.dspTime + (double)GMC._finalEndTimesIntroSource.clip.length);
-                GMC._finalEndTimesIntroSource.Stop();
-                GMC._finalEndTimesIntroSource.FadeIn(2f, false, false, 1f);
-                GMC._playingFinalEndTimes = true;
-
-                endTimesShouldPlay = false;
-            }
-
-            // Turn down the supernova blast volume
-            if (rumbleShouldFadeOut && Time.time - wakeUpTime >= 20f)
-            {
-                SEC._audioSource.FadeTo(0.1f, 30f);
-                rumbleShouldFadeOut = false;
-            }
-
-            //KEEP THE RUMBLE FADED OUT FFS
-            if (Time.time - wakeUpTime >= 50f)
-            {
-                SEC._audioSource.SetMaxVolume(0.1f);
-            }
         }
 
         private void OnWakeUp()

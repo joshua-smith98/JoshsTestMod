@@ -9,7 +9,7 @@ namespace ModTemplate
     public class SurviveTheSupernova : ModBehaviour
     {
         bool isInitialised = false;
-        bool sunWillExplode = false;
+        bool sunShouldExplode = false;
         float wakeUpTime;
         
         SupernovaDestructionVolume SDV;
@@ -58,9 +58,9 @@ namespace ModTemplate
             SDV.SetActivation(false); //Hopefully this isn't too laggy or something
 
             // Explode sun 0.1 seconds after you wake up - should avoid the loading time interfering on later loops
-            if (sunWillExplode && Time.time - wakeUpTime >= 0.1f)
+            if (sunShouldExplode && Time.time - wakeUpTime >= 0.1f)
             {
-                sunWillExplode = false;
+                sunShouldExplode = false;
                 OnEarlyExplode();
             }
         }

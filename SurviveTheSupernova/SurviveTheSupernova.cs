@@ -15,8 +15,6 @@ namespace ModTemplate
         float wakeUpTime;
         
         SupernovaDestructionVolume SDV;
-        GlobalMusicController GMC;
-        SupernovaEffectController SEC;
         OWScene currentScene;
         
         private void Awake()
@@ -38,14 +36,10 @@ namespace ModTemplate
                 if (currentScene is not OWScene.SolarSystem)
                 {
                     SDV = null;
-                    GMC = null;
-                    SEC = null;
                     return;
                 }
 
                 SDV = FindObjectOfType<SupernovaDestructionVolume>();
-                GMC = FindObjectOfType<GlobalMusicController>();
-                SEC = FindObjectOfType<SupernovaEffectController>();
 
                 //Got to do this because otherwise it seems to add an additional listener per restart
                 if (!isInitialised)
@@ -64,8 +58,7 @@ namespace ModTemplate
             if (currentScene is not OWScene.SolarSystem)
                 return;
 
-            SDV._checkForPlayerDestruction = false; //Fingers crossed this works... nope
-            SDV.SetActivation(false); //Hopefully this isn't too laggy or something
+            SDV.SetActivation(false); //Deactivate the SupernovaDestructionVolume
 
             // Explode sun 0.1 seconds after you wake up - should avoid the loading time interfering on later loops
             if (sunShouldExplode && Time.time - wakeUpTime >= 0.1f)
@@ -79,8 +72,6 @@ namespace ModTemplate
         {
             wakeUpTime = Time.time;
             sunShouldExplode = true;
-            endTimesShouldPlay = true;
-            rumbleShouldFadeOut = true;
         }
 
         private void OnEarlyExplode()
@@ -88,11 +79,6 @@ namespace ModTemplate
             //TimeLoop.SetTimeLoopEnabled(false); //Right...apparently this just gives you the You Are Dead screen after the ATP pulls you back. K.
             ModHelper.Console.WriteLine("Blowing up the sun, and disabling the ATP so the loop never ends.");
             GlobalMessenger.FireEvent("TriggerSupernova");
-
-            var deathController = FindObjectOfType<DeathManager>();
-            Destroy(deathController); //Trying to force the player to not be killed by the timeloop.
-            //Yeah that's right, I just destroyed death. This can't end badly at all.
-            //NOOOFUUUU
 
             var timeloopCoreController = FindObjectOfType<TimeLoopCoreController>();
             Destroy(timeloopCoreController); //Yeah screw the ATP!!!

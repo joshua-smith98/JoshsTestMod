@@ -29,7 +29,7 @@ namespace ModTemplate
         private void Start()
         {
             // Starting here, you'll have access to OWML's mod helper.
-            ModHelper.Console.WriteLine($"My mod {nameof(SurviveTheSupernova)} is loaded!", MessageType.Success);
+            ModHelper.Console.WriteLine($"{nameof(SurviveTheSupernova)} is loaded!", MessageType.Success);
 
             // Example of accessing game code.
             LoadManager.OnCompleteSceneLoad += (scene, loadScene) =>
@@ -54,6 +54,8 @@ namespace ModTemplate
                 }
 
                 isInitialised = true;
+
+                ModHelper.Console.WriteLine($"{nameof(SurviveTheSupernova)} initialised.");
             };
         }
 
@@ -84,6 +86,7 @@ namespace ModTemplate
         private void OnEarlyExplode()
         {
             //TimeLoop.SetTimeLoopEnabled(false); //Right...apparently this just gives you the You Are Dead screen after the ATP pulls you back. K.
+            ModHelper.Console.WriteLine("Blowing up the sun, and disabling the ATP so the loop never ends.");
             GlobalMessenger.FireEvent("TriggerSupernova");
 
             var deathController = FindObjectOfType<DeathManager>();

@@ -10,9 +10,11 @@ namespace ModTemplate
     {
         bool isInitialised = false;
         bool sunShouldExplode = false;
+        bool endTimesShouldPlay = false;
         float wakeUpTime;
         
         SupernovaDestructionVolume SDV;
+        GlobalMusicController GMC;
         OWScene currentScene;
         
         private void Awake()
@@ -34,10 +36,12 @@ namespace ModTemplate
                 if (currentScene is not OWScene.SolarSystem)
                 {
                     SDV = null;
+                    GMC = null;
                     return;
                 }
 
                 SDV = FindObjectOfType<SupernovaDestructionVolume>();
+                GMC = FindObjectOfType<GlobalMusicController>();
 
                 //Got to do this because otherwise it seems to add an additional listener per restart
                 if (!isInitialised)
@@ -63,12 +67,26 @@ namespace ModTemplate
                 sunShouldExplode = false;
                 OnEarlyExplode();
             }
+
+            // Start playing finalEndTimes a little after the supernova, so we don't mess with the built in logic
+            // I really need to learn how to inject methods, so I can actually change the game logic...
+            if (endTimesShouldPlay && Time.time - wakeUpTime >= 10f)
+            {
+                //Literally copied from the assembly
+                endTimesShouldPlay = false;
+                Locator.GetAudioMixer().MixEndTimes(5f);
+                GMC._finalEndTimesLoopSource.GetAudioSource().PlayScheduled(AudioSettings.dspTime + (double)GMC._finalEndTimesIntroSource.clip.length);
+                GMC._finalEndTimesIntroSource.Stop();
+                GMC._finalEndTimesIntroSource.FadeIn(2f, false, false, 1f);
+                GMC._playingFinalEndTimes = true;
+            }
         }
 
         private void OnWakeUp()
         {
             wakeUpTime = Time.time;
-            sunWillExplode = true;
+            sunShouldExplode = true;
+            endTimesShouldPlay = true;
         }
 
         private void OnEarlyExplode()

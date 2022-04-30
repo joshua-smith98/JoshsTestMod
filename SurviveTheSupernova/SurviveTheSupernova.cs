@@ -54,8 +54,6 @@ namespace ModTemplate
                 // Disable timeloop and supernova deaths
                 ModHelper.HarmonyHelper.AddPrefix<DeathManager>(nameof(DeathManager.KillPlayer), typeof(SurviveTheSupernova), nameof(SurviveTheSupernova.DeathManagerPrefix_KillPlayer));
 
-                // We need to do this anyway, so that the ship isn't destroyed
-                SDV.SetActivation(false);
 
                 GlobalMessenger.AddListener("WakeUp", OnWakeUp);
 
@@ -67,6 +65,9 @@ namespace ModTemplate
         {
             if (currentScene is not OWScene.SolarSystem)
                 return;
+
+            //We need to do this anyway, so the shipisn't destroyed
+            SDV.SetActivation(false);
 
             // Explode sun 0.1 seconds after you wake up - should avoid the loading time interfering on later loops
             if (sunShouldExplode && Time.time - wakeUpTime >= 0.1f)

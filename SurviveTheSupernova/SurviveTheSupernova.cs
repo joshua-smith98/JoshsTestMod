@@ -16,27 +16,27 @@ namespace ModTemplate
         
         SupernovaDestructionVolume SDV;
         SupernovaEffectController SEC;
+        DeathManager deathManager;
         OWScene currentScene;
+
+        #region OWML Methods
 
         public override void Configure(IModConfig config)
         {
             disableSupernovaRumble = config.GetSettingsValue<bool>("Disable Supernova Rumble");
             triggerSupernovaOnWake = config.GetSettingsValue<bool>("Trigger Supernova on Wake");
         }
-        
-        private void Awake()
-        {
-            // You won't be able to access OWML's mod helper in Awake.
-            // So you probably don't want to do anything here.
-            // Use Start() instead.
-        }
+
+        #endregion
+
+        #region Unity Methods
 
         private void Start()
         {
-            // Starting here, you'll have access to OWML's mod helper.
+            // Send load message
             ModHelper.Console.WriteLine($"{nameof(SurviveTheSupernova)} is loaded!", MessageType.Success);
 
-            // Example of accessing game code.
+            // On scene load
             LoadManager.OnCompleteSceneLoad += (scene, loadScene) =>
             {
                 currentScene = loadScene;
@@ -49,11 +49,37 @@ namespace ModTemplate
 
                 SDV = FindObjectOfType<SupernovaDestructionVolume>();
                 SEC = FindObjectOfType<SupernovaEffectController>();
+                deathManager = FindObjectOfType<DeathManager>();
+
+                // Disable timeloop and supernova deaths
+                ModHelper.HarmonyHelper.AddPrefix<DeathManager>(nameof(DeathManager.KillPlayer), typeof(SurviveTheSupernova), nameof(SurviveTheSupernova.DeathManagerPrefix_KillPlayer));
+
+                // We need to do this anyway, so that the ship isn't destroyed
+                SDV.SetActivation(false);
 
                 GlobalMessenger.AddListener("WakeUp", OnWakeUp);
 
                 ModHelper.Console.WriteLine($"{nameof(SurviveTheSupernova)} initialised.");
             };
+        }
+
+        private void FixedUpdate()
+        {
+            if (currentScene is not OWScene.SolarSystem)
+                return;
+
+            // Explode sun 0.1 seconds after you wake up - should avoid the loading time interfering on later loops
+            if (sunShouldExplode && Time.time - wakeUpTime >= 0.1f)
+            {
+                sunShouldExplode = false;
+
+                if (triggerSupernovaOnWake)
+                    GlobalMessenger.FireEvent("TriggerSupernova");
+            }
+
+            //Mute Supernova Rumble
+            if (disableSupernovaRumble & SEC._audioSource.isPlaying)
+                SEC._audioSource.Stop();
         }
 
         private void Destroy()
@@ -65,43 +91,21 @@ namespace ModTemplate
             GlobalMessenger.RemoveListener("WakeUp", OnWakeUp);
         }
 
-        private void FixedUpdate()
-        {
-            if (currentScene is not OWScene.SolarSystem)
-                return;
+        #endregion
 
-            SDV.SetActivation(false); //Deactivate the SupernovaDestructionVolume
-
-            // Explode sun 0.1 seconds after you wake up - should avoid the loading time interfering on later loops
-            if (sunShouldExplode && Time.time - wakeUpTime >= 0.1f)
-            {
-                sunShouldExplode = false;
-                OnEarlyExplode();
-            }
-
-            //Mute Supernova Rumble
-            if (disableSupernovaRumble & SEC._audioSource.isPlaying)
-                SEC._audioSource.Stop();
-        }
+        #region Callback & Patch Methods
 
         private void OnWakeUp()
         {
             wakeUpTime = Time.time;
             sunShouldExplode = true;
         }
-
-        private void OnEarlyExplode()
+        
+        private static bool DeathManagerPrefix_KillPlayer(DeathType deathType)
         {
-            if (triggerSupernovaOnWake)
-            {
-                //TimeLoop.SetTimeLoopEnabled(false); //Right...apparently this just gives you the You Are Dead screen after the ATP pulls you back. K.
-                ModHelper.Console.WriteLine("Blowing up the sun, and disabling the ATP so the loop never ends.");
-                GlobalMessenger.FireEvent("TriggerSupernova");
-            }
-
-            var timeloopCoreController = FindObjectOfType<TimeLoopCoreController>();
-            Destroy(timeloopCoreController); //Yeah screw the ATP!!!
-            //Oh god it actually worked.
+            return deathType is not (DeathType.TimeLoop or DeathType.Supernova); //Skip original method and don't kill player on timeloop or supernova
         }
+
+        #endregion
     }
 }
